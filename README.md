@@ -1,0 +1,47 @@
+# Azure AI Foundry Workflow Container App
+
+A containerized web service that exposes Azure AI Foundry workflows as HTTP APIs.
+
+## Getting Started
+
+1. **Open in DevContainer**: 
+   - Open this folder in VS Code
+   - When prompted, click "Reopen in Container" or use Command Palette: `Dev Containers: Reopen in Container`
+
+2. **Set up environment variables**:
+   - Copy `.env.example` to `.env`
+   - Update the values in `.env` with your Azure AI Foundry project details
+
+3. **Run the workflow**:
+   ```bash
+   npm start
+   ```
+
+## DevContainer Features
+
+- **Base Image**: Node.js 20 on Debian Bookworm
+- **Azure CLI**: Latest version with Bicep support
+- **VS Code Extensions**: Azure tools, JSON support
+- **Port Forwarding**: Ports 3000 and 8080 configured
+- **Azure Credentials**: Mounts local Azure credentials for seamless authentication
+
+## Project Structure
+
+- `TestWorkflow.js` - Main workflow execution script
+- `.devcontainer/` - DevContainer configuration
+- `package.json` - Node.js dependencies and scripts
+- `.env.example` - Template for environment variables
+
+## Azure Authentication
+
+The DevContainer mounts your local Azure credentials (`~/.azure`) so you can use Azure CLI and DefaultAzureCredential seamlessly. Make sure you're logged in to Azure CLI before opening the container:
+
+```bash
+az login
+```
+
+## Dependencies
+
+- `@azure/identity` - Azure authentication
+- `@azure/ai-projects` - Azure AI Foundry SDK
+- `dotenv` - Environment variable management

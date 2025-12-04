@@ -1,0 +1,121 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "containerAppName": {
+      "type": "string",
+      "defaultValue": "foundry-workflow-app",
+      "metadata": {
+        "description": "Name of the container app"
+      }
+    },
+    "containerAppEnvironmentName": {
+      "type": "string",
+      "defaultValue": "foundry-workflow-env",
+      "metadata": {
+        "description": "Name of the container app environment"
+      }
+    },
+    "containerImage": {
+      "type": "string",
+      "defaultValue": "your-acr.azurecr.io/foundry-workflow:latest",
+      "metadata": {
+        "description": "Container image name"
+      }
+    },
+    "azureEndpoint": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Azure AI Foundry endpoint"
+      }
+    },
+    "agentId": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Azure agent ID"
+      }
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('containerAppEnvironmentName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "appLogsConfiguration": {
+          "destination": "log-analytics"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('containerAppName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', parameters('containerAppEnvironmentName'))]"
+      ],
+      "properties": {
+        "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', parameters('containerAppEnvironmentName'))]",
+        "configuration": {
+          "ingress": {
+            "external": true,
+            "targetPort": 3000,
+            "traffic": [
+              {
+                "weight": 100,
+                "latestRevision": true
+              }
+            ]
+          },
+          "secrets": [
+            {
+              "name": "azure-endpoint",
+              "value": "[parameters('azureEndpoint')]"
+            },
+            {
+              "name": "agent-id",
+              "value": "[parameters('agentId')]"
+            }
+          ]
+        },
+        "template": {
+          "containers": [
+            {
+              "image": "[parameters('containerImage')]",
+              "name": "foundry-workflow",
+              "env": [
+                {
+                  "name": "AZURE_EXISTING_AIPROJECT_ENDPOINT",
+                  "secretRef": "azure-endpoint"
+                },
+                {
+                  "name": "AZURE_EXISTING_AGENT_ID",
+                  "secretRef": "agent-id"
+                }
+              ],
+              "resources": {
+                "cpu": 0.25,
+                "memory": "0.5Gi"
+              }
+            }
+          ],
+          "scale": {
+            "minReplicas": 1,
+            "maxReplicas": 10
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "containerAppFQDN": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.App/containerApps', parameters('containerAppName'))).configuration.ingress.fqdn]"
+    }
+  }
+}

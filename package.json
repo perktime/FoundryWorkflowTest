@@ -1,0 +1,36 @@
+{
+  "name": "foundry-workflow-test",
+  "version": "1.0.0",
+  "description": "Azure AI Foundry workflow test application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test2.js",
+    "docker:build": "docker build -t foundry-workflow .",
+    "docker:run": "docker run -p 3000:3000 --env-file .env foundry-workflow"
+  },
+  "dependencies": {
+    "@azure/ai-projects": "^2.0.0-beta.2",
+    "@azure/identity": "^4.13.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.22.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "azure",
+    "ai",
+    "foundry",
+    "workflow"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

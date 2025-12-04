@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure AI Foundry Workflow</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; padding: 10px; }
+        button { background: #0078d4; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #106ebe; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .response { background: white; padding: 15px; border-radius: 4px; margin-top: 20px; white-space: pre-wrap; }
+        .loading { color: #666; font-style: italic; }
+        .error { color: #d13438; }
+        .success { color: #107c10; }
+    </style>
+</head>
+<body>
+    <h1>🤖 Azure AI Foundry Workflow</h1>
+    
+    <div class="container">
+        <h3>Test the Workflow API</h3>
+        <textarea id="inputText" placeholder="Enter your product concept or description here...">Product Concept: HoloNest. Tagline: Bring your world into focus. Features Adaptive Reality Pods, MoodSync AI, Multi-user layering, zero-lag gesture control, and eco-recharge cells. Target Audience is Create Professional and community organizers.</textarea>
+        
+        <button id="submitBtn" onclick="runWorkflow()">Run Workflow</button>
+        
+        <div id="response" class="response" style="display:none;">
+            <h4>Response:</h4>
+            <div id="responseText"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>Health Check</h3>
+        <button onclick="checkHealth()">Check Health</button>
+        <div id="healthStatus"></div>
+    </div>
+
+    <script>
+        async function runWorkflow() {
+            const input = document.getElementById('inputText').value;
+            const responseDiv = document.getElementById('response');
+            const responseText = document.getElementById('responseText');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (!input.trim()) {
+                alert('Please enter some input text');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            responseDiv.style.display = 'block';
+            responseText.innerHTML = '<div class="loading">Running workflow...</div>';
+            
+            try {
+                const response = await fetch('/api/workflow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ input: input })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseText.innerHTML = `
+                        <div class="success">✅ Workflow completed successfully!</div>
+                        <p><strong>Response Text:</strong></p>
+                        <div>${data.response_text || 'No response text generated'}</div>
+                        <p><strong>Workflow Actions:</strong> ${data.workflow_actions?.length || 0}</p>
+                        <p><strong>Conversation ID:</strong> ${data.conversation_id}</p>
+                    `;
+                } else {
+                    responseText.innerHTML = `<div class="error">❌ Error: ${data.message || data.error}</div>`;
+                }
+            } catch (error) {
+                responseText.innerHTML = `<div class="error">❌ Network Error: ${error.message}</div>`;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Run Workflow';
+            }
+        }
+        
+        async function checkHealth() {
+            const healthStatus = document.getElementById('healthStatus');
+            
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    healthStatus.innerHTML = `<div class="success">✅ Healthy - ${data.timestamp}</div>`;
+                } else {
+                    healthStatus.innerHTML = `<div class="error">❌ Unhealthy</div>`;
+                }
+            } catch (error) {
+                healthStatus.innerHTML = `<div class="error">❌ Connection Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-check health on page load
+        window.onload = checkHealth;
+    </script>
+</body>
+</html>
