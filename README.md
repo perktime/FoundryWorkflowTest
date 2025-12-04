@@ -1,6 +1,6 @@
-# Azure AI Foundry Workflow Container App
+# Microsoft Foundry Workflow Container App
 
-A containerized web service that exposes Azure AI Foundry workflows as HTTP APIs with a web interface for testing and interaction.
+A containerized web service that exposes Microsoft Foundry workflows as HTTP APIs with a web interface for testing and interaction.
 
 ## Getting Started
 
@@ -10,7 +10,7 @@ A containerized web service that exposes Azure AI Foundry workflows as HTTP APIs
 
 2. **Set up environment variables**:
    - Copy `.env.example` to `.env`
-   - Update the values in `.env` with your Azure AI Foundry project details
+   - Update the values in `.env` with your Microsoft Foundry project details
 
 3. **Install dependencies**:
    ```bash
@@ -85,7 +85,7 @@ az login
 ## Dependencies
 
 - `@azure/identity` - Azure authentication
-- `@azure/ai-projects` - Azure AI Foundry SDK
+- `@azure/ai-projects` - Microsoft Foundry SDK
 - `express` - Web server framework
 - `dotenv` - Environment variable management
 
